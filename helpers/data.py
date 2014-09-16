@@ -1,5 +1,6 @@
 import json
 import copy
+import csv
 from collections import Counter
 
 
@@ -143,3 +144,18 @@ def count_2d_list(data, d1_id=None, d2_list=None, d2_id=None, weight=None):  # T
         results += Counter(d2_data)  # TODO: add weight of lists with something like: weight[d1_id] * d2_data
 
     return results
+
+
+def find_row_in_csv(search, file):
+
+    if not search:
+        raise TypeError("You didn't search for anything.")
+
+    with open(file,'rb') as f:
+        reader = csv.reader(f, delimiter=',')
+        for row in reader:
+            for column in row:
+                if search in column:
+                    return row
+
+    raise IndexError("Search string not found in file.")
