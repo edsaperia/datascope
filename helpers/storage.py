@@ -41,8 +41,9 @@ def get_hif_model(inp):  # TODO: tests!
 
     model = get_model(app_label="HIF", model_name=name)
     if model is None:
-        raise HIFImproperUsage("The specified model does not exist, is not imported in models " +
-                               "or is not registered as Django model with HIF label.")
+        raise HIFImproperUsage(
+            "The specified model '{}' does not exist, is not imported in models or is not registered as Django model with HIF label.".format(name)
+        )
     return model
 
 
