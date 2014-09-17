@@ -129,6 +129,7 @@ class Process(ProcessStorage):
         self.retain()
 
     class Meta:
+        app_label = "HIF"
         proxy = True
 
 

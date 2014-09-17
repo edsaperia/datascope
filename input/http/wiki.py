@@ -126,10 +126,7 @@ class WikiBaseQuery(JsonQueryLink):
     # And it is impossible to inherit attributes in a normal way
     # There is this syntax that could be used
     # TODO: remove when used in real life
-    # TODO: Add a helper to do this and improve syntax looks?
-    # HIF_parameters = dict(WikiBaseQuery.HIF_parameters.copy(), **{
-    #    "test": "test"
-    # })
+
 
     def prepare_link(self):
         """

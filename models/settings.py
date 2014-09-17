@@ -29,3 +29,4 @@ class Domain(object):
         'P910',  # topic's main category
     ]
 
+    quandl_year_of_interest = '2013'
