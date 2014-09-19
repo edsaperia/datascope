@@ -18,7 +18,7 @@ class FinancialHealthCheck(Process):
                 "keypath": None,
                 "args": ["SEC-ticker"],
                 "kwargs": {},
-                "extension": "Stock Price (end of year)"
+                "extension": "Stock Info"
             },
         }
         stock_price_config.update(self.config.dict())

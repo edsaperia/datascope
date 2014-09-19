@@ -30,3 +30,4 @@ class Domain(object):
     ]
 
     quandl_year_of_interest = '2013'
+    quandl_auth_token = 'TJsQur3cqkm6fefbPWGs'  # VPRO

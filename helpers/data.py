@@ -146,16 +146,19 @@ def count_2d_list(data, d1_id=None, d2_list=None, d2_id=None, weight=None):  # T
     return results
 
 
-def find_row_in_csv(search, file):
+def find_row_in_csv(search, file_name, dicts=False, columns=None):
 
     if not search:
         raise TypeError("You didn't search for anything.")
 
-    with open(file,'rb') as f:
-        reader = csv.reader(f, delimiter=',')
+    with open(file_name, 'rb') as file_object:
+
+        reader = csv.reader(file_object) if not dicts else csv.DictReader(file_object)
         for row in reader:
-            for column in row:
-                if search in column:
+            if columns is None:
+                columns = xrange(0, len(row)) if not dicts else list(row)
+            for col in columns:
+                if search.lower() in row[col].lower():
                     return row
 
     raise IndexError("Search string not found in file.")

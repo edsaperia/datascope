@@ -9,13 +9,7 @@ class QuandlBase(HttpLink, HttpJsonMixin):
 
     HIF_namespace = 'quandl'
 
-    # HIF_parameters = {
-    #     "trim_start": "{}-01-01",
-    #     "trim_end": "{}-12-31",
-    # }
-    HIF_objective = {
-        "data.0.1": 0,
-    }
+
 
     def __init__(self, *args, **kwargs):
         super(QuandlBase, self).__init__(*args, **kwargs)
@@ -24,9 +18,8 @@ class QuandlBase(HttpLink, HttpJsonMixin):
     def sanitize_input(self, to_check):
         return sanitize_single_trueish_input(to_check, class_name=self.__class__.__name__)
 
-    def prepare_params(self):
-        params = super(QuandlBase, self).prepare_params()
-        return params.format(self.config.year_of_interest, self.config.year_of_interest)  # trim_start + trim_end formatting
+    def enable_auth(self):
+        return u'auth_token={}'.format(self.config.auth_token)
 
     def prepare_link(self):
         link = super(QuandlBase, self).prepare_link()
@@ -42,6 +35,10 @@ class QuandlBase(HttpLink, HttpJsonMixin):
 
 
 class QuandlAnnualNetIncome(QuandlBase):
+
+    HIF_objective = {
+        "data.0.1": 0,
+    }
 
     HIF_link = 'https://www.quandl.com/api/v1/datasets/RAYMOND/{}_NET_INCOME_A'
     HIF_translations = {
@@ -64,18 +61,29 @@ class QuandlAnnualStockPrice(QuandlBase):
     # TODO: Add a helper to do this and improve syntax looks?
     # HIF_parameters = dict(QuandlBase.HIF_parameters.copy(), **{
     HIF_parameters = {
-        "column": 4,
         "sort_order": "asc",
-        "collapse": "annual",
+        "collapse": "monthly",
+        "trim_start": "2014-06-01",
+        "trim_end": "2014-06-30",
+    }
+
+    HIF_objective = {
+        "data.0.11": 0,
+        "data.0.12": 0,
     }
 
     HIF_translations = {
-        "data.0.1": "stock-year-closing-price"
+        "data.0.11": "stock-adjusted-closing-price",
+        "data.0.12": "stock-adjusted-volume",
     }
+
+    # def prepare_params(self):
+    #     params = super(QuandlBase, self).prepare_params()
+    #     return params.format(self.config.year_of_interest, self.config.year_of_interest)  # trim_start + trim_end formatting
 
     @property  # TODO: how to implement these things correctly with mixins instead of having to add it all the time
     def rsl(self):
-        return self.data[0]['stock-year-closing-price']
+        return self.data[0]
 
     class Meta:
         app_label = "HIF"

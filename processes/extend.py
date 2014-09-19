@@ -94,7 +94,10 @@ class Extend(models.Model):
         if extension is None:
             return None
         try:
-            extension[self.config._extend["extension"]] = self.rsl
+            if self.config._extend["extension"] is not None:
+                extension[self.config._extend["extension"]] = self.rsl
+            else:
+                extension = self.rsl
         except HIFNoContent:
             return None
         return extension, self.config._extend["keypath"]
