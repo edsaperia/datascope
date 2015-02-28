@@ -9,3 +9,5 @@ docs/_build/
 
 secrets.py
 server.py
+
+*.warc.gz
