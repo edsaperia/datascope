@@ -6,7 +6,7 @@ class BlackListException(Exception):
 
 
 warc_data = warc.open("archiveteam_hyves_20131125032333.cdx.gz")
-blacklist = [] # ['cache.hyves', 'hyves-static','metadata://']
+blacklist = ['www.hyves', 'cache.hyves', 'hyves-static', 'metadata://']
 
 counter = 0
 
@@ -26,3 +26,4 @@ for i, record in enumerate(warc_data):
         print uri
 
 print counter
+
