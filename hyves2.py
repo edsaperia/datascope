@@ -1,27 +1,27 @@
 import io, re
 import requests, warc
-import subprocess  # gzip -cd -
 
+# Some compiled regexes to detect certain Hyves pages
+INDEX_PATTERN = re.compile("https?:\/\/([^.]+)\.hyves\.nl/$")
+PROFILE_PATTERN = re.compile("https?:\/\/([^.]+)\.hyves\.nl/profiel/$")
 
-index_pattern = re.compile("https?:\/\/([^.]+)\.hyves\.nl/$")
-profile_pattern = re.compile("https?:\/\/([^.]+)\.hyves\.nl/profiel/$")
-cache = {}
-url = "https://archive.org/download/archiveteam_hyves_20131124104613/"
-targets = [
+# A list of dictionaries that indicates which archives to get
+# This list should become a complete list of Hyves archives
+# We could either scrape the archive site or fill them in by hand
+TARGETS = [
     {
+        "archive": "https://archive.org/download/archiveteam_hyves_20131124104613/hyves_20131124104613.megawarc.warc.gz",
         "index": "hyves_20131124104613.megawarc.warc.os.cdx",
-        "archive": "hyves_20131124104613.megawarc.warc.gz"
     }
 ]
-targetz = []
-for target in targets:
-    response = requests.head(url + target['archive'])
-    target["url"] = response.headers.get('location')
-    targetz.append(target)
 
-target = targetz[0]
+# Some vars this program works with
+target = TARGETS[0]
+cache = {}
+limit = 10
 
 
+# A function to save results in a dictionary
 def store_in_cache(match, data, typ):
 
     stored = cache.get(match)
@@ -33,20 +33,18 @@ def store_in_cache(match, data, typ):
         cache[match][typ] = data
 
 
-limit = 1
-
-
 with io.open(target["index"], 'r') as fb:
 
+    # Read the index file
     for line in fb:
 
-        data = line.split(' ')
-        uri = data[2]
+        data = line.split(' ')  # splits columns in index file
+        uri = data[2]  # looks at third column
 
-        index_match = index_pattern.match(uri)
+        index_match = INDEX_PATTERN.match(uri)
         if index_match is not None:
             store_in_cache(index_match.group(1), data, "index")
-        profile_match = profile_pattern.match(uri)
+        profile_match = PROFILE_PATTERN.match(uri)
         if profile_match is not None:
             store_in_cache(profile_match.group(1), data, "profile")
 
@@ -56,16 +54,36 @@ with io.open(target["index"], 'r') as fb:
             break
 
         if "index" in stored and "profile" in stored:
-            cached_data = stored["index"]
+
+            print "Getting:", stored["profile"]
+
+            # Prepare partial request for data from archive
+            cached_data = stored["profile"]
             compressed_offset = cached_data[-2]
             compressed_file_size = cached_data[-3]
             headers = {
                 "Range": "bytes={}-{}".format(compressed_offset, int(compressed_offset) + int(compressed_file_size) + 1)
             }
 
-            response = requests.get(target['url'], headers=headers, verify=False)
-            import ipdb; ipdb.set_trace()
-            fp = warc.WARCFile(fileobj=response.raw)
+            # Get data and write to disk
+            response = requests.get(target['archive'], headers=headers, verify=False)
+            with open("tmp.warc.gz", "w+b") as tmp_gz:
+                tmp_gz.write(response.content)
 
-            record = fp.read_record()
-            print record
+            # Read as WARC record
+            wf = warc.open("tmp.warc.gz")
+            record = wf.read_record()
+
+            html = []
+            body = False
+            for line in record.payload.read().split('\n'):
+                if body:
+                    html.append(line)
+                if not line.strip():
+                    body = True
+
+            html_file = open(
+                "".join(x if x.isalnum() else '-' for x in cached_data[0]) + ".html",
+                "w+"
+            )
+            html_file.writelines(html)
