@@ -1,0 +1,17 @@
+1)   Ga naar 1 van de Hyves dumps op archive.org (bijvoorbeeld: https://archive.org/details/archiveteam_hyves_20131124104613)
+
+2)   Download de "warc cdx index" van de site (+/- 1,5 GB)
+
+3)   Zet de cdx.gz file in de directory van hyves-profiles.py
+
+4)   Edit hyves-profiles.py en pas TARGETS aan, zodat 
+		A) de "index" key verwijst naar de cdx.gz bestandsnaam (hyves_20131124104613.megawarc.warc.os.cdx bijvoorbeeld)
+		B) de "archive" key verwijst naar het online archive, die hoort bij de index (https://archive.org/download/archiveteam_hyves_20131124104613/hyves_20131124104613.megawarc	.warc.gz bijvoorbeeld)
+
+5)	 Herhaal stappen 1 t/m 4 tot alle WARC files van het Hyves project een eigen target hebben (NB: ik heb steeds met 1 target tegelijk getest)
+
+6)   Pas de LIMIT variabele aan naar gewenste aantal. 10 beperkt het zoeken in index tot maximaal 10 profielen. 0 betekend dat het script door de hele index gaat op zoek naar profielen
+
+7)   Run hyves-profiles.py
+
+8)   Alle profielen worden opgeslagen in bestanden zoals nl-hyves-<naam>--profiel.html
