@@ -13,10 +13,7 @@ class FilterPeople(Process):
 
         results = Process().load(serialization=self.config._continue).rsl
 
-        all_items = []
-        for location in results:
-            for link in location['backlinks']:
-                all_items.append(link['wikidata'])
+        all_items = [link['wikidata'] for link in results['backlinks']]
 
         # TODO: create link type that does POST and is convenient for logic below
         filtered_items = []
@@ -27,18 +24,15 @@ class FilterPeople(Process):
             response = requests.post('http://wdq.wmflabs.org/api', {"q": query})
             filtered_items += response.json()['items']
 
-        filtered_locations = []
-        for location in results:
-            filtered_links = []
-            for link in location['backlinks']:
-                if link['wikidata'] and int(link['wikidata'][1:]) in filtered_items:  # strips 'Q' from items and makes it int
-                    filtered_links.append(link)
-            if len(filtered_links):
-                location['people'] = filtered_links
-                del location['backlinks']
-                filtered_locations.append(location)
+        filtered_links = []
+        for link in results['backlinks']:
+            if link['wikidata'] and int(link['wikidata'][1:]) in filtered_items:  # strips 'Q' from items and makes it int
+                filtered_links.append(link)
+        if len(filtered_links):
+            results['people'] = filtered_links
+            del results['backlinks']
 
-        self.rsl = filtered_locations
+        self.rsl = results
 
     class Meta:
         app_label = "core"
@@ -167,6 +161,81 @@ class CityCelebrities(Process):
             el = fragments[0]
             text_quality = 0
         return tostring(el), text_quality
+
+    class Meta:
+        app_label = "core"
+        proxy = True
+
+
+class CelebrityPoem(Process):
+
+    HIF_person_lookup = 'WikiSearch'
+    HIF_backlinks = 'WikiBacklinks'
+    HIF_info = 'WikiSearch'
+
+    def process(self):
+
+        query = self.config.query
+
+        # Setup person retriever
+        person_lookup_config = {
+            "_link": self.HIF_person_lookup,
+            "query": query,
+            "extracts": True,
+        }
+        person_lookup_config.update(self.config.dict())
+        person_lookup_retriever = Retrieve()
+        person_lookup_retriever.setup(**person_lookup_config)
+
+        # Setup data retriever
+        backlinks_config = {
+            "_link": self.HIF_backlinks,
+            "_context": query,  # here only to distinct inter-query retriever configs from each other
+            "_extend": {
+                "source": None,
+                "target": None,
+                "args": "title",
+                "kwargs": {},
+                "extension": "backlinks"
+            }
+        }
+        backlinks_retriever = Retrieve()
+        backlinks_retriever.setup(**backlinks_config)
+
+        filter_config = {
+            "_continue": person_lookup_retriever.retain(),
+            "_context": query
+        }
+        filter_process = FilterPeople()
+        filter_process.setup(**filter_config)
+
+        text_config = {
+            "_link": self.HIF_info,
+            "_context": query,  # here only to distinct inter-query retriever configs from each other
+            "extracts": True,
+            "_extend": {
+                "source": None,
+                "target": "people.*",
+                "args": "people.*.title",
+                "kwargs": {},
+                "extension": None
+            }
+        }
+        text_process = Retrieve()
+        text_process.setup(**text_config)
+
+        # Start Celery task
+        task = (
+            execute_process.s(query, person_lookup_retriever.retain()) |
+            extend_process.s(backlinks_retriever.retain()) |
+            execute_process.s(filter_process.retain()) |
+            extend_process.s(text_process.retain())
+        )()
+        self.task = task
+
+    def post_process(self):
+        results = Retrieve().load(serialization=self.task.result).rsl
+        self.rsl = results
 
     class Meta:
         app_label = "core"
