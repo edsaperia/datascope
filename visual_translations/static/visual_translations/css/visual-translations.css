@@ -1,0 +1,23 @@
+.LanguageColumn {
+    width: 3.33%;
+    float: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.WordText {
+    font-size: 0.8vw;
+    text-align: center;
+}
+
+.WordImageLink {
+    width: 100%;
+}
+
+.WordImage {
+    width: 100%;
+}
+
+p {
+    margin: 0;
+}

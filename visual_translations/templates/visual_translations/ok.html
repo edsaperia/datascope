@@ -1,33 +1,28 @@
 {% extends "core/base.html" %}
-{% load bootstrap_tags i18n %}
+{% load bootstrap_tags i18n static %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static "visual_translations/css/visual-translations.css" %}" rel="stylesheet" />
+{% endblock %}
 
 {% block body %}
     <div class="container-fluid">
-        {% for language, words in response.results %}
-
-            <div class="row">
-                <div class="col-md-12"><h2>{{ language }}</h2></div>
-            </div>
-
-            <div class="row">
-                {% for word in words %}
-                    <div class="{{ words|col_md }}">
-
-                        <h3>{{ word.word }}</h3>
-                        {% for image in word.images %}
-                            <p><a href="{{ image.url }}"><img src="{{ image.thumbnail }}"/></a></p>
-                        {% endfor %}
-                        {% for video in word.videos %}
-                            <p><a target="_blank" href="http://www.youtube.com/watch?v={{ video.vid }}">
-                                <img src="{{ video.thumbnail }}"/>
-                            </a></p>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-            </div>
-
-        {% endfor %}
-
+        <div class="row">
+            {% for language, words in response.results %}
+                <div class="LanguageColumn">
+                    <div><h2>{{ language }}</h2></div>
+                    {% for word in words %}
+                        <div>
+                            <h3 class="WordText">{{ word.word }}</h3>
+                            {% for image in word.images %}
+                                <p><a class="WordImageLink" href="{{ image.url }}"><img class="WordImage" src="{{ image.thumbnail }}"/></a></p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
     </div>
 
 {% endblock %}
