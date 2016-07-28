@@ -6,6 +6,7 @@ from itertools import groupby
 from collections import OrderedDict, Iterator
 from datetime import datetime
 import logging
+import gc
 
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation, ContentType
@@ -317,6 +318,8 @@ class Community(models.Model, ProcessorMixin):
                 raise DSProcessError("Could not finish growth according to error callbacks.")
             log.info("Finishing " + self.current_growth.type)
             self.call_finish_callback(self.current_growth.type, output, errors)
+            leaks = gc.collect(generation=1)
+            log.info("Finished with {} leaks".format(leaks))
             try:
                 self.current_growth = self.next_growth()
             except Growth.DoesNotExist:
