@@ -91,7 +91,9 @@ class Growth(models.Model, ProcessorMixin):
         assert args_type == ArgumentsTypes.NORMAL and isinstance(self.input, Individual) or \
             args_type == ArgumentsTypes.BATCH and isinstance(self.input, Collective), \
             "Unexpected arguments type '{}' for input of class {}".format(args_type, self.input.__class__.__name__)
+        log.info("just before preparing arguments")
         args, kwargs = self.input.output(self.config.args, self.config.kwargs)
+        log.info("just after preparing arguments")
         if isinstance(self.input, Individual):
             result = method(*args, **kwargs)
         elif isinstance(self.input, Collective):
