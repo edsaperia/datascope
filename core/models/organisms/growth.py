@@ -170,6 +170,7 @@ class Growth(models.Model, ProcessorMixin):
                 if isinstance(contribution, dict):
                     yield contribution
                 elif isinstance(contribution, Iterator):
+                    log.info("Contributions found of type: {}".format(type(contribution)))
                     for contrib in contribution:
                         yield contrib
             except DSNoContent as exc:
