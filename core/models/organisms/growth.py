@@ -129,8 +129,11 @@ class Growth(models.Model, ProcessorMixin):
                 raise exc  # TODO: reraise?
 
         if self.state == GrowthState.CONTRIBUTE:
+            log.info("just before reading results from processor")
             scc, err = processor.results(result)
+            log.info("just before preparing contributions")
             contributions = self.prepare_contributions(scc)
+            log.info("about to contribute")
             if self.contribute_type == ContributeType.APPEND:
                 self.append_to_output(contributions)
             elif self.contribute_type == ContributeType.INLINE:
@@ -147,10 +150,12 @@ class Growth(models.Model, ProcessorMixin):
                 pass
             else:
                 raise AssertionError("Growth.finish did not act on contribute_type {}".format(self.contribute_type))
+            log.info("finishing contributions")
             for res in err:
                 res.retain(self)
             self.state = GrowthState.COMPLETE if not len(err) else GrowthState.PARTIAL
             self.save()
+            log.info("contributions done")
 
         return self.output, self.resources
 
