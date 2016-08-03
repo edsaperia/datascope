@@ -66,7 +66,7 @@ class TestGrowth(TestProcessorMixin, GeneratorAssertsMixin):
         MockTask.reset_mock()
         with patch('core.processors.HttpResourceProcessor._send_mass.s', return_value=MockTask) as send_mass_s:
             self.collective_input.begin()
-        MockTask.delay.assert_called_once()
+        self.assertEqual(MockTask.delay.call_count, 1)
         args, kwargs = MockTask.delay.call_args
         args_list, kwargs_list = args
         self.assert_generator_yields(args_list, [["nested value 0"], ["nested value 1"], ["nested value 2"]])
