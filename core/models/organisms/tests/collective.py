@@ -6,9 +6,10 @@ from django.test import TransactionTestCase
 from django.db.models.query import QuerySet
 
 from core.models.organisms import Collective, Individual
+from core.models.organisms.tests.mixins import GeneratorAssertsMixin
 
 
-class TestCollective(TransactionTestCase):
+class TestCollective(TransactionTestCase, GeneratorAssertsMixin):
 
     fixtures = ["test-organisms"]
 
@@ -95,19 +96,19 @@ class TestCollective(TransactionTestCase):
 
     def test_output(self):
         results = self.instance.output("$.value")
-        self.assertEqual(results, self.value_outcome)
+        self.assert_generator_yields(results, self.value_outcome)
         results = self.instance.output("$.value", "$.value")
-        self.assertEqual(list(results), [self.value_outcome, self.value_outcome])
+        self.assert_generator_yields(results, [self.value_outcome, self.value_outcome])
         results = self.instance.output(["$.value"])
-        self.assertEqual(results, self.list_outcome)
+        self.assert_generator_yields(results, self.list_outcome)
         results = self.instance.output(["$.value", "$.value"])
-        self.assertEqual(results, self.double_list_outcome)
+        self.assert_generator_yields(results, self.double_list_outcome)
         results = self.instance.output([])
-        self.assertEqual(results, [[], [], []])
+        self.assert_generator_yields(results, [[], [], []])
         results = self.instance.output({"value": "$.value"})
-        self.assertEqual(results, self.dict_outcome)
+        self.assert_generator_yields(results, self.dict_outcome)
         results = self.instance.output({})
-        self.assertEqual(results, [{}, {}, {}])
+        self.assert_generator_yields(results, [{}, {}, {}])
 
     def test_json_content(self):
         self.skipTest("not tested")

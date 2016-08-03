@@ -4,13 +4,13 @@ from mock import patch
 
 from core.models.organisms.growth import Growth, GrowthState
 from core.tests.mocks.celery import (MockTask, MockAsyncResultSuccess, MockAsyncResultPartial,
-                                    MockAsyncResultError, MockAsyncResultWaiting)
+                                     MockAsyncResultError, MockAsyncResultWaiting)
 from core.tests.mocks.http import HttpResourceMock
-from core.models.organisms.tests.mixins import TestProcessorMixin
+from core.models.organisms.tests.mixins import TestProcessorMixin, GeneratorAssertsMixin
 from core.exceptions import DSProcessError, DSProcessUnfinished
 
 
-class TestGrowth(TestProcessorMixin):
+class TestGrowth(TestProcessorMixin, GeneratorAssertsMixin):
 
     fixtures = ["test-growth"]
 
@@ -66,8 +66,12 @@ class TestGrowth(TestProcessorMixin):
         MockTask.reset_mock()
         with patch('core.processors.HttpResourceProcessor._send_mass.s', return_value=MockTask) as send_mass_s:
             self.collective_input.begin()
-        MockTask.delay.assert_called_once_with(
-            [["nested value 0"], ["nested value 1"], ["nested value 2"]],
+        MockTask.delay.assert_called_once()
+        args, kwargs = MockTask.delay.call_args
+        args_list, kwargs_list = args
+        self.assert_generator_yields(args_list, [["nested value 0"], ["nested value 1"], ["nested value 2"]])
+        self.assert_generator_yields(
+            kwargs_list,
             [{"context": "nested value"}, {"context": "nested value"}, {"context": "nested value"}]
         )
         self.assertEqual(self.new.result_id, "result-id")

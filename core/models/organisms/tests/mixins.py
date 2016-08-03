@@ -13,3 +13,13 @@ class TestProcessorMixin(TestCase):
         #process, method = self.new.prepare_process(self.new.process)
         #self.assertIsInstance(process, HttpResourceProcessor)
         #self.assertTrue(callable(method))
+
+
+class GeneratorAssertsMixin(object):
+
+    def assert_generator_yields(self, generator, expected):
+        for gen, exp in zip(generator, expected):
+            if isinstance(exp, list):
+                self.assert_generator_yields(gen, exp)
+            else:
+                self.assertEqual(gen, exp)

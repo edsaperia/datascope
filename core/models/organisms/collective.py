@@ -131,16 +131,16 @@ class Collective(Organism):
             return map(self.output, args)
         frm = args[0]
         if not frm:
-            return [frm for ind in self.individual_set.all()]
+            return (frm for x in range(0, self.individual_set.count()))
         elif isinstance(frm, list):
             output = self.output(*frm)
             if len(frm) > 1:
-                output = [list(zipped) for zipped in zip(*output)]
+                output = (list(zipped) for zipped in zip(*output))
             else:
-                output = [[out] for out in output]
+                output = ([out] for out in output)
             return output
         else:
-            return [ind.output(frm) for ind in self.individual_set.all()]
+            return (ind.output(frm) for ind in self.individual_set.iterator())
 
     def group_by(self, key):
         """
