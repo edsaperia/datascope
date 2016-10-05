@@ -4,6 +4,7 @@ from pandas import DataFrame
 import numpy
 from scipy.cluster.vq import kmeans2
 from matplotlib import pyplot
+from mpl_toolkits.mplot3d import Axes3D
 
 from core.management.commands._community import CommunityCommand
 from core.utils.configuration import DecodeConfigAction
@@ -28,6 +29,16 @@ class Command(CommunityCommand):
             cast_elements_to_floats(individual["vectors"]) for individual in community.kernel.individual_set.all()
         ])
         centroids, labels = kmeans2(clothing_vectors, 10, minit="points")
+
         centroids_frame = DataFrame(centroids)
-        centroids_frame.T.plot()
+        #centroids_frame.T.plot()
+        #centroids_frame.drop(range(20, 4096), axis=1, inplace=True)
+        #print(centroids_frame.head())
+
+        x = range(4096)  #centroids_frame.index
+        y = range(10) # centroids_frame.as_matrix(columns=centroids_frame.columns)
+        X, Y = numpy.meshgrid(x, y)
+        threedee = pyplot.figure().gca(projection='3d')
+        threedee.plot_surface(X,Y, centroids_frame.as_matrix())
+
         pyplot.show()
