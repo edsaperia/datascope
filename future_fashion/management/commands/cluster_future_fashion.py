@@ -1,7 +1,9 @@
 from __future__ import unicode_literals, absolute_import, print_function, division
 
+from pandas import DataFrame
 import numpy
 from scipy.cluster.vq import kmeans2
+from matplotlib import pyplot
 
 from core.management.commands._community import CommunityCommand
 from core.utils.configuration import DecodeConfigAction
@@ -26,4 +28,6 @@ class Command(CommunityCommand):
             cast_elements_to_floats(individual["vectors"]) for individual in community.kernel.individual_set.all()
         ])
         centroids, labels = kmeans2(clothing_vectors, 10, minit="points")
-        import ipdb; ipdb.set_trace()
+        centroids_frame = DataFrame(centroids)
+        centroids_frame.T.plot()
+        pyplot.show()
