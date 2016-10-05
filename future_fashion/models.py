@@ -44,7 +44,7 @@ class FutureFashionCommunity(Community):
 
     def initial_input(self, *args):
         directory = args[0]
-        initial = Collective.objects.create(community=self, schema={})
+        initial = Collective.objects.create(community=self, schema={}, identifier="file")
         directories, files = default_storage.listdir(directory)
         for file in files:
             full_name = directory + '/' + file
@@ -58,7 +58,9 @@ class FutureFashionCommunity(Community):
                 "file": default_storage.path(full_name),
                 "url": default_storage.url(full_name)
             }
-            Individual.objects.create(community=self, collective=initial, properties=properties, schema={})
+            ind = Individual(community=self, collective=initial, properties=properties, schema={})
+            ind.clean()
+            ind.save()
         return initial
 
     def set_kernel(self):
