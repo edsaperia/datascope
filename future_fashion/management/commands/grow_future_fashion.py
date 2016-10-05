@@ -9,7 +9,8 @@ class Command(GrowCommand):
     def add_arguments(self, parser):
         parser.add_argument('community', type=str, nargs="?", default="FutureFashionCommunity")
         parser.add_argument('-c', '--config', type=str, action=DecodeConfigAction, nargs="?", default={})
+        parser.add_argument('-a', '--args', type=str, nargs="*", default="")
 
-    def handle_community(self, community, **options):
+    def handle_community(self, community, *args, **options):
         community.signature = "kleding"
-        super(Command, self).handle_community(community, **options)
+        super(Command, self).handle_community(community, *args, **options)
