@@ -25,9 +25,16 @@ class Command(CommunityCommand):
         community, created = self.model.objects.get_latest_or_create_by_signature("kleding", **self.config)
         return community
 
+    def plot_data(self, canvas, data_frame, color):
+        x, y = data_frame.shape
+        x_range = range(x)
+        y_range = range(y)
+        X, Y = numpy.meshgrid(x_range, y_range)
+        canvas.plot_surface(X, Y, data_frame.T.as_matrix())
+
     def handle_community(self, community, **options):
-        image_count = community.kernel.individual_set.count()
-        vector_count = 4096
+        from mpl_toolkits.mplot3d import Axes3D
+        canvas = pyplot.figure().gca(projection='3d')
 
         clothing_vectors = numpy.array([
             cast_elements_to_floats(individual["vectors"]) for individual in community.kernel.individual_set.all()
@@ -48,10 +55,6 @@ class Command(CommunityCommand):
         #centroids_frame.drop(range(20, 4096), axis=1, inplace=True)
         #print(centroids_frame.head())
 
-        from mpl_toolkits.mplot3d import Axes3D
-        x = range(vector_count)
-        y = range(image_count + len(centroids))
-        X, Y = numpy.meshgrid(x, y)
-        threedee = pyplot.figure().gca(projection='3d')
-        threedee.plot_surface(X, Y, clothing_frame.as_matrix())
+
+        self.plot_data(canvas, clothing_frame, 'b')
         pyplot.show()
