@@ -1,10 +1,11 @@
 from __future__ import unicode_literals, absolute_import, print_function, division
 
-from pandas import DataFrame
+from operator import itemgetter
+
+from pandas import DataFrame, Series
 import numpy
 from scipy.cluster.vq import kmeans2
 from matplotlib import pyplot
-from mpl_toolkits.mplot3d import Axes3D
 
 from core.management.commands._community import CommunityCommand
 from core.utils.configuration import DecodeConfigAction
@@ -25,20 +26,32 @@ class Command(CommunityCommand):
         return community
 
     def handle_community(self, community, **options):
+        image_count = community.kernel.individual_set.count()
+        vector_count = 4096
+
         clothing_vectors = numpy.array([
             cast_elements_to_floats(individual["vectors"]) for individual in community.kernel.individual_set.all()
         ])
         centroids, labels = kmeans2(clothing_vectors, 10, minit="points")
 
-        centroids_frame = DataFrame(centroids)
+        clothing_frame = DataFrame()
+        clothing_by_cluster = sorted(zip(labels, clothing_vectors), key=itemgetter(0))
+        current_label = None
+        for label, vector in clothing_by_cluster:
+            if label != current_label:
+                current_label = label
+                clothing_frame = clothing_frame.append(Series(data=centroids[current_label]), ignore_index=True)
+            clothing_frame = clothing_frame.append(Series(data=vector), ignore_index=True)
+
+        #centroids_frame = DataFrame(centroids)
         #centroids_frame.T.plot()
         #centroids_frame.drop(range(20, 4096), axis=1, inplace=True)
         #print(centroids_frame.head())
 
-        x = range(4096)  #centroids_frame.index
-        y = range(10) # centroids_frame.as_matrix(columns=centroids_frame.columns)
+        from mpl_toolkits.mplot3d import Axes3D
+        x = range(vector_count)
+        y = range(image_count + len(centroids))
         X, Y = numpy.meshgrid(x, y)
         threedee = pyplot.figure().gca(projection='3d')
-        threedee.plot_surface(X,Y, centroids_frame.as_matrix())
-
+        threedee.plot_surface(X, Y, clothing_frame.as_matrix())
         pyplot.show()
