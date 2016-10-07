@@ -1,6 +1,7 @@
 from __future__ import unicode_literals, absolute_import, print_function, division
 
 from operator import itemgetter
+import random
 
 from pandas import DataFrame, Series
 import numpy
@@ -30,7 +31,7 @@ class Command(CommunityCommand):
         x_range = range(x)
         y_range = range(y)
         X, Y = numpy.meshgrid(x_range, y_range)
-        canvas.plot_surface(X, Y, data_frame.T.as_matrix())
+        canvas.plot_surface(X, Y, data_frame.T.as_matrix(), rstride=1, cstride=1, color='b', linewidth=0, antialiased=False)
 
     def handle_community(self, community, **options):
         from mpl_toolkits.mplot3d import Axes3D
@@ -55,6 +56,18 @@ class Command(CommunityCommand):
         #centroids_frame.drop(range(20, 4096), axis=1, inplace=True)
         #print(centroids_frame.head())
 
-
         self.plot_data(canvas, clothing_frame, 'b')
         pyplot.show()
+
+
+# clothing_by_cluster = sorted(zip(labels, clothing_vectors), key=itemgetter(0))
+# current_frame = None
+# current_label = None
+# for label, vector in clothing_by_cluster:
+#     if label != current_label and current_frame is not None:
+#         color = "#%06x" % random.randint(0, 0xFFFFFF)
+#         self.plot_data(canvas, current_frame, color)
+#     if label != current_label:
+#         current_label = label
+#         clothing_frame = clothing_frame.append(Series(data=centroids[current_label]), ignore_index=True)
+#     clothing_frame = clothing_frame.append(Series(data=vector), ignore_index=True)
