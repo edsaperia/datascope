@@ -315,5 +315,5 @@ if USE_WEBSOCKETS:
 # DATASCOPE SETTINGS
 #######################################################
 
-DATASCOPE_VERSION = "0.4.0"
+DATASCOPE_VERSION = "0.5.0"
 DATASCOPE_DATETIME_FORMAT = "%Y%m%d%H%M%S%f"
