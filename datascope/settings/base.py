@@ -67,7 +67,7 @@ INSTALLED_APPS = (
     'wiki_feed',
     'visual_translations',
     'future_fashion',
-    'similarity',
+    'topic_research',
 )
 
 DATABASE_TYPES = {
