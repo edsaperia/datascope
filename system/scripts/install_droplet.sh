@@ -87,6 +87,11 @@ rm /etc/nginx/sites-enabled/default
 mkdir /srv/logs/nginx/
 nginx -s reload
 
+# Setup firewall
+ufw allow ssh/tcp
+ufw logging on
+ufw enable
+
 # SETUP: Django
 export DJANGO_SETTINGS_MODULE="datascope.settings.digital-ocean"
 cd /srv/datascope/src
