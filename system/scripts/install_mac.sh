@@ -27,6 +27,6 @@ pip install -r system/requirements/websockets.txt
 export DJANGO_SETTINGS_MODULE=datascope.settings.development;
 echo 'alias act-ds="source ~/Datascope/envs/ds-3/bin/activate && cd ~/Datascope/datascope/ && export DJANGO_SETTINGS_MODULE=datascope.settings.development"' >> ~/.bash_profile
 
-mysql -uroot -e "CREATE DATABASE datascope CHARSET utf8;"
+mysql -uroot -e "CREATE DATABASE datascope CHARSET utf8md4;"
 cd ~/Datascope/datascope/
 ./manage.py syncdb
