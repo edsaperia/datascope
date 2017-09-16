@@ -54,7 +54,7 @@ class RedditScrapeCommunity(Community):
             "process": "HttpResourceProcessor.fetch_mass",
             "input": "@subjects",
             "contribute": "Append:ExtractProcessor.extract_from_resource",
-            "output": "Collective#id",
+            "output": "Collective#parent_id",
             "config": {
                 "_args": ["$.details_link"],
                 "_kwargs": {},
