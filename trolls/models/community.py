@@ -102,6 +102,23 @@ class RedditScrapeCommunity(Community):
     def set_kernel(self):
         self.kernel = self.get_growth("images").output
 
+    def finish_comments(self, out, err):
+
+        def modify_author_score(comment):
+            author_score = comment["author_score"]
+            if not author_score:
+                return comment
+            if author_score.isnumeric():
+                comment.properties["author_score"] = int(author_score.trim())
+            else:
+                comment.properties["author_score"] = int(float(author_score[:-1].trim()) * 1000)
+            return comment
+
+        out.update(
+            (modify_author_score(comment) for comment in out.individual_set.iterator()),
+            reset=True
+        )
+
     def begin_download(self, inp):
         subjects = self.get_growth("images").output
         inp.update([subject for subject in subjects.individual_set.all() if subject.properties.get("media_preview")])
