@@ -40,9 +40,9 @@ class RedditScrapeCommunity(Community):
                 "_kwargs": {},
                 "_resource": "RedditPermalink",
                 "_objective": {
-                    "@": "soup.find_all(id=lambda el_id: el_id and el_id.startswith('media-preview-'))",
-                    "id": "el.get('id').split('-')[-1]",
-                    "media_preview": "el.find('img').get('src') if el.find('img') else None",
+                    "@": "soup.find_all(id=lambda el_id: el_id and el_id.startswith('thing_'))[0]",
+                    "id": "el.get('id').split('_')[-1]",
+                    "#media_preview": "soup.find(property='og:image')['content'] if soup.find(property='og:image') else None",
                 },
                 "_interval_duration": 2000,
                 "_update_key": "id"
