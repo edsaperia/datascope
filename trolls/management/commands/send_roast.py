@@ -8,7 +8,7 @@ from trolls.models.community import RedditScrapeCommunity
 
 
 SOCKET_SERVER_ADDRESS = ('192.168.1.40', 8001)
-SOCKET_LOCAL_ADDRESS = ('0.0.0.0', 8000)
+SOCKET_LOCAL_ADDRESS = ('0.0.0.0', 8002)
 
 
 class Command(BaseCommand):
@@ -57,8 +57,8 @@ class Command(BaseCommand):
             # Clean up the connection
             connection.close()
             sock.close()
-
-        print(json.loads(response))
+        print('-' * 80)
+        print(json.loads(response.decode('utf-8')))
 
     def send_action(self, action, payload):  # TODO: decouple from command
         sock = socket.create_connection(SOCKET_SERVER_ADDRESS)
