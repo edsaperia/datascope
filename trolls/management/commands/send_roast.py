@@ -29,7 +29,6 @@ class Command(BaseCommand):
         print('Random comment id={}'.format(random_comment["id"]))
         print('-' * 80)
         print(random_comment["comment"])
-        return
 
         # Create a TCP/IP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
