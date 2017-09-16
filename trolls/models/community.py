@@ -65,7 +65,7 @@ class RedditScrapeCommunity(Community):
                     "parent_id": "next(el.parents)['id'].split('_')[-1] if next(el.parents) else None",
                     "author": "el.get('data-author')",
                     "author_score": "el.select('.score.unvoted')[0].text if el.select('.score.unvoted') else 0",
-                    "comment": "[paragraph.text for paragraph in el.select('.usertext-body p')]"
+                    "comment": "[paragraph.text for paragraph in el.select('> .entry .usertext-body p')]"
                 }
             },
             "schema": {},
