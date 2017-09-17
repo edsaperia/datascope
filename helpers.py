@@ -45,7 +45,33 @@ def get_random_comment():
     return random_comment["comment"]
 
 
-def send_face_detected():
+def get_matching_comment(opencv_face):
+    closest_face = compareface.compareFace(opencv_face)
+    if not closest_face:
+        print("No closes face")
+        return get_random_comment()
+    from trolls.models.community import RedditScrapeCommunity
+    community = RedditScrapeCommunity.objects.get_latest_by_signature("RoastMe")
+    data = community.get_growth("comments")
+    posts = data.input.individual_set
+    comments = data.output.individual_set
+
+    file_name = closest_face.split('.')[-2]
+    closest_post = posts.filter(properties__regex=file_name).first()
+    if not closest_post:
+        print("File name not found in posts: " + file_name)
+        return get_random_comment()
+
+    closest_comment = comments.filter(identity=closest_post["id"]).first()
+
+    print('Closest post id={} comments={} '.format(closest_post["id"], closest_post["details_link"]))
+    print('Closest comment id={}'.format(closest_comment["id"]))
+    print('-' * 80)
+    print(closest_comment["comment"])
+    return closest_comment["comment"]
+
+
+def send_face_detected(opencv_face):
     # Create a TCP/IP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -54,7 +80,7 @@ def send_face_detected():
 
     send_action(
         "Face.Detected",
-        get_random_comment()
+        get_matching_comment(opencv_face)
     )
 
     # Wait for a connection

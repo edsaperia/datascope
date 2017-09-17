@@ -7,7 +7,7 @@ import pprint
 #from tqdm import tqdm
 
 from helpers import send_face_detected
-
+from faceplusplus_analysis import compareface
 
 
 
@@ -74,7 +74,8 @@ if __name__ == '__main__':
         for (x, y, w, h) in faces:
             print(w,h)
             if w >= 100 and h >= 100:
-                send_face_detected()
+                opencv_face = img[y:y+h,x:x+w]
+                send_face_detected(opencv_face)
 #     img = cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
 #     # roi_gray = gray[y:y+h, x:x+w]
 #     # roi_color = img[y:y+h, x:x+w]
