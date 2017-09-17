@@ -109,13 +109,21 @@ class RedditScrapeCommunity(Community):
             if not author_score:
                 return comment
             if author_score.isnumeric():
-                comment.properties["author_score"] = int(author_score.trim())
+                comment.properties["author_score"] = int(author_score.strip())
             else:
-                comment.properties["author_score"] = int(float(author_score[:-1].trim()) * 1000)
+                score = author_score.split(' ')[0]
+                if not score.isnumeric():
+                    try:
+                        score = float(score[:-1].strip()) * 1000
+                    except ValueError as exc:
+                        print('Problems modifying author score')
+                        print(exc)
+                        score = 0
+                comment.properties["author_score"] = int(score)
             return comment
 
         out.update(
-            (modify_author_score(comment) for comment in out.individual_set.iterator()),
+            (modify_author_score(comment) for comment in out.individual_set.all()),
             reset=True
         )
 
