@@ -62,7 +62,7 @@ def get_matching_comment(opencv_face):
         print("File name not found in posts: " + file_name)
         return get_random_comment()
 
-    closest_comment = comments.filter(identity=closest_post["id"]).first()
+    closest_comment = comments.filter(identity=closest_post["id"]).order_by('?').first()
 
     print('Closest post id={} comments={} '.format(closest_post["id"], closest_post["details_link"]))
     print('Closest comment id={}'.format(closest_comment["id"]))
